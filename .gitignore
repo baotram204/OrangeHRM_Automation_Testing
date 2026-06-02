@@ -1,0 +1,11 @@
+target/
+.mvn
+
+### IntelliJ IDEA ###
+.idea/
+logs/
+screenshots/
+reports/
+*.iml
+
+
