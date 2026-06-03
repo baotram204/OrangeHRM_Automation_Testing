@@ -83,7 +83,7 @@ public class ReadUserTest extends BaseTest {
         /**
          * UM_READ_001
          */
-        @Test(groups = { "smoke",
+        @Test(groups = { "smoke", "regression",
                         "positive" }, description = "Verify that the system displays the user list when navigating to the User Management page.")
         public void verifyUserListIsDisplayed() {
                 LogUtils.info("Verify that the user list is displayed.");
@@ -112,7 +112,7 @@ public class ReadUserTest extends BaseTest {
         /**
          * UM_READ_002
          */
-        @Test(groups = { "smoke",
+        @Test(groups = { "smoke", "regression",
                         "positive" }, description = "Verify that the system returns all users when all search fields are left blank.")
         public void verifyAllUsersAreReturnedWhenAllSearchFieldsAreLeftBlank() {
                 LogUtils.info("Verify that the user list when all search fields are left blank.");
@@ -146,7 +146,7 @@ public class ReadUserTest extends BaseTest {
         /**
          * UM_READ_003
          */
-        @Test(groups = { "positive" }, description = "Verify that the system filter role Admin")
+        @Test(groups = { "regression", "positive" }, description = "Verify that the system filter role Admin")
         public void verifyFilterByRoleAdmin() {
                 LogUtils.info("Verify that the system filter follow role");
 
@@ -176,7 +176,7 @@ public class ReadUserTest extends BaseTest {
         /**
          * UM_READ_004
          */
-        @Test(groups = { "positive" }, description = "Verify that the system filter role ESS")
+        @Test(groups = { "regression", "positive" }, description = "Verify that the system filter role ESS")
         public void verifyFilterByRoleESS() {
                 LogUtils.info("Verify that the system filter follow role");
 
@@ -205,7 +205,8 @@ public class ReadUserTest extends BaseTest {
         /**
          * UM_READ_005
          */
-        @Test(groups = { "positive" }, description = "Verify that the system returns matching user(s) when a valid Employee Name is entered and selected.")
+        @Test(groups = { "regression",
+                        "positive" }, description = "Verify that the system returns matching user(s) when a valid Employee Name is entered and selected.")
         public void verifyFilterByEmployeeName() {
                 LogUtils.info("Verify that the system filter follow employee name");
 
@@ -265,7 +266,8 @@ public class ReadUserTest extends BaseTest {
         /**
          * UM_READ_007
          */
-        @Test(groups = { "positive" }, description = "Verify that the system does not return results if employee name is not selected from dropdown.")
+        @Test(groups = { "regression",
+                        "positive" }, description = "Verify that the system does not return results if employee name is not selected from dropdown.")
         public void verifyNoResultsReturnedForUnselectedEmployeeName() {
                 LogUtils.info("Verify that the system does not return results if employee name is not selected from dropdown.");
 
@@ -293,7 +295,8 @@ public class ReadUserTest extends BaseTest {
         /**
          * UM_READ_008
          */
-        @Test(groups = { "negative" }, description = "Verify that the system shows no results when an invalid (non-existing) Employee Name is entered.")
+        @Test(groups = { "regression",
+                        "negative" }, description = "Verify that the system shows no results when an invalid (non-existing) Employee Name is entered.")
         public void verifyFilterByInvalidEmployeeName() {
                 LogUtils.info("Verify that the system shows no results when an invalid (non-existing) Employee Name is entered.");
 
@@ -322,7 +325,6 @@ public class ReadUserTest extends BaseTest {
          * UM_READ_009
          */
         @Test(groups = { "regression",
-                        "negative",
                         "positive" }, description = "Verify for valid username")
         public void verifyValidUsername() {
                 ExtentTestUtils.setTest(
@@ -352,8 +354,7 @@ public class ReadUserTest extends BaseTest {
          * UM_READ_010
          */
         @Test(groups = { "regression",
-                        "negative",
-                        "positive" }, description = "Verify for invalid username")
+                        "negative" }, description = "Verify for invalid username")
         public void verifyInvalidUsername() {
                 ExtentTestUtils.setTest(
                                 extent.createTest("UM_READ_010 - Verify invalid username"));
