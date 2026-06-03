@@ -1,5 +1,6 @@
 package pages;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -28,6 +29,10 @@ public class AdminUserPage extends BasePage {
         protected static By userRoleDropdown = By.xpath(
                         "//label[normalize-space()='User Role'] /ancestor::div[contains(@class,'oxd-input-group')] //div[contains(@class,'oxd-select-wrapper')]");
 
+        // label error message
+        protected static By errorFieldMessage = By
+                        .xpath("//div[contains(@class,'oxd-input-group oxd-input-field-bottom-space')]//span");
+
         // Status
         protected static By statusDropdown = By.xpath(
                         "//label[normalize-space()='Status'] /ancestor::div[contains(@class,'oxd-input-group')] //div[contains(@class,'oxd-select-wrapper')]");
@@ -35,6 +40,19 @@ public class AdminUserPage extends BasePage {
         // toast
         private static By successToast = By
                         .xpath("//p[text()='Successfully Saved' or contains(text(), 'Successfully Saved')]");
+        private static By infoToast = By
+                        .xpath("//p[text()='No Records Found' or contains(text(), 'No Records Found')]");
+
+        // user table
+        private static By userTable = By.className("oxd-table");
+        private static By rowsTable = By.xpath("//div[@class='oxd-table-card']");
+        private static By columnHeaders = By.xpath("//div[@role='columnheader']");
+
+        // text
+        private static By textTotalRecord = By.xpath(
+                        "//div[@class='orangehrm-horizontal-padding orangehrm-vertical-padding']");
+
+        // Button Action =========================================================
 
         public AddUserPage clickAddUser() {
 
@@ -45,41 +63,257 @@ public class AdminUserPage extends BasePage {
 
         }
 
-        // HELPER =========================
+        public void clickSearch() {
+                LogUtils.info("Clicked Search button");
+                click(searchButton);
+        }
+
+        public AdminUserPage clickReset() {
+                LogUtils.info("Clicked Reset button");
+                click(resetButton);
+                return new AdminUserPage();
+        }
+
+        // Field Action =============================================================
+        public void typeUsername(String username) {
+                LogUtils.info("Type username: " + username);
+                type(usernameInput, username);
+
+                // TAB
+                getElementsList(usernameInput).get(0).sendKeys(org.openqa.selenium.Keys.TAB);
+
+                // Sleep 1000ms -- FIX TẠM THỜI
+                try {
+                        Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                }
+        }
+
+        public void chooseUserRole(String role) {
+                LogUtils.info("Choose user role");
+                selectDropdown(userRoleDropdown, role);
+        }
+
+        public void chooseStatus(String status) {
+                LogUtils.info("Choose status");
+                selectDropdown(statusDropdown, status);
+        }
+
+        public void typeEmployeeName(String name) {
+                LogUtils.info("Type employee name: " + name);
+                selectDropdownForEmployeeName(name);
+        }
 
         /**
-         * Chọn một tùy chọn trong dropdown.
+         * Type employee name and don't wait to choose option in dropdown
+         * 
+         * @param name Employee name
+         */
+        public void typeEmployeeNameWithoutSelecting(String name) {
+                LogUtils.info("Type employee name: " + name);
+                type(employeeNameInput, name);
+        }
+
+        // Verify ===================================================
+
+        /**
+         * Get all data in a column
+         * 
+         * @param field column name
+         * @return list data in column
+         */
+        public List<String> getDataFollowField(String field) {
+
+                if (isInfoToastDisplayed()) {
+                        return Collections.emptyList();
+                }
+
+                List<WebElement> headers = getElementsList(columnHeaders);
+                int columnHeaderIndex = 0;
+                for (int i = 0; i < headers.size(); i++) {
+                        if (headers.get(i).getText().trim().equals(field)) {
+                                columnHeaderIndex = i + 1;
+                                break;
+                        }
+                }
+
+                List<WebElement> values = getElementsList(By
+                                .xpath("//div[@class='oxd-table-card']//div[@role='cell'][" + columnHeaderIndex + "]"));
+                List<String> data = values.stream().map(WebElement::getText).toList();
+                LogUtils.info("Column " + field + " data: " + data);
+
+                return data;
+
+        }
+
+        /**
+         * Get total row in table
+         * 
+         * @return int
+         */
+        public int getTableRowCount() {
+                List<WebElement> rows = getElementsList(rowsTable);
+                return rows.size();
+        }
+
+        /**
+         * Get total records displayed.
          *
-         * @param dropdownLocator locator của phần tử dropdown
-         * @param optionText      văn bản của tùy chọn muốn chọn
+         * Examples:
+         * - "Total Records: 5" -> 5
+         * - "No Records Found" -> 0
+         *
+         * @return total records
+         */
+        public int getDisplayedRecordCount() {
+                String text = getText(textTotalRecord);
+
+                if (text == null || text.isBlank()
+                                || text.contains("No Records Found")) {
+                        return 0;
+                }
+
+                String numberOnly = text.replaceAll("[^0-9]", "");
+
+                try {
+                        return Integer.parseInt(numberOnly);
+                } catch (NumberFormatException e) {
+                        LogUtils.error("Could not parse total records: " + text);
+                        return 0;
+                }
+        }
+
+        /**
+         * Verify Employee dropdown matching with text
+         *
+         * @param name Employee name
+         * @return true if all value in dropdown matching with text
+         */
+        public boolean verifyEmployeeDropdownOptions(String name) {
+                List<WebElement> option = showDropdown(name);
+                for (WebElement element : option) {
+                        String opt = element.getText().trim();
+                        if (!opt.toLowerCase().contains(name.toLowerCase())) {
+                                LogUtils.error("Employee dropdown option not matching with text: " + opt);
+                                return false;
+                        }
+                }
+                LogUtils.info("Employee dropdown option matching with text: " + name);
+                return true;
+        }
+
+        /**
+         * Check success toast display
+         * 
+         * @return true if success toast display
+         */
+        public boolean isSuccessToastDisplayed() {
+                return isDisplayed(successToast);
+        }
+
+        /**
+         * Check info toast display
+         * 
+         * @return true if info toast display
+         */
+        public boolean isInfoToastDisplayed() {
+                return isDisplayed(infoToast);
+        }
+
+        /**
+         * Check user table display
+         * 
+         * @return true if user table display
+         */
+        public boolean isUserTableDisplayed() {
+                return isDisplayed(userTable);
+        }
+
+        /**
+         * Check error message in password field
+         * 
+         * @return true if error message displayed
+         */
+        public boolean checkErrorMessage() {
+                List<WebElement> errorMessages = getElementsList(errorFieldMessage);
+                return errorMessages.size() > 0;
+        }
+
+        /**
+         * Check error message in specific field in web like User Role, Username,...
+         * 
+         * @param field Field name
+         * @return true if error message displayed
+         */
+        public boolean isErrorMessageDisplayed(String field) {
+                By errorField = By.xpath(
+                                "//label[normalize-space()='" + field
+                                                + "'] /ancestor::div[contains(@class,'oxd-input-group')]//span");
+                return isDisplayed(errorField, 3);
+        }
+
+        /**
+         * Get error message in specific field in web like User Role, Username,...
+         * 
+         * @param field Field name
+         * @return Error message
+         */
+        public String getTextErrorMessage(String field) {
+                By errorField = By.xpath(
+                                "//label[normalize-space()='" + field
+                                                + "'] /ancestor::div[contains(@class,'oxd-input-group')]//span");
+
+                if (isDisplayed(errorField, 3)) {
+                        return getText(errorField);
+                }
+                return "";
+        }
+
+        // HELPER ==================================================
+
+        /**
+         * 
+         * 
+         */
+
+        /**
+         * Choose option in dropdown
+         *
+         * @param dropdownLocator locator of dropdown
+         * @param optionText      text of option
          */
         public void selectDropdown(By dropdownLocator, String optionText) {
-                // 1. Click để mở dropdown
+                // 1. Click to open dropdown
                 click(dropdownLocator);
 
-                // 2. Đợi danh sách các option xuất hiện
+                // 2. Wait for option list appear
                 By optionsLocator = By.xpath(
                                 "//div[contains(@class,'oxd-select-wrapper')]//div[contains(@class,'oxd-select-option')]");
 
-                // TÌM CÁCH GET ELEMENT THAY VÌ DÙNG STATIC
                 List<WebElement> options = getElementsList(optionsLocator);
 
-                // 3. Tìm option có text khớp
+                // 3. Find option with matching text
                 for (WebElement opt : options) {
                         if (opt.getText().trim().equalsIgnoreCase(optionText.trim())) {
-                                // 4. Click vào option đúng
+                                // 4. Click the correct option
                                 opt.click();
-                                LogUtils.info(String.format("Đã chọn '%s' trong dropdown", optionText));
+                                LogUtils.info(String.format("Selected '%s' in dropdown", optionText));
                                 return;
                         }
                 }
 
-                // Nếu không tìm thấy, ghi log và ném ngoại lệ để test biết lỗi
-                String err = String.format("Không tìm thấy tùy chọn '%s' trong dropdown", optionText);
+                // If not found, log error and throw exception to let test know the error
+                String err = String.format("Could not find option '%s' in dropdown", optionText);
                 LogUtils.error(err);
                 throw new NoSuchElementException(err);
         }
 
+        /**
+         * Choose option in Employee Name dropdown
+         * 
+         * @param name
+         */
         public void selectDropdownForEmployeeName(String name) {
                 List<WebElement> options = showDropdown(name);
 
@@ -87,33 +321,29 @@ public class AdminUserPage extends BasePage {
                         String optionText = opt.getText().trim();
                         if (optionText.toLowerCase().contains(name.toLowerCase())) {
                                 opt.click();
-                                LogUtils.info(String.format("Đã chọn nhân viên '%s'", optionText));
+                                LogUtils.info(String.format("Selected employee '%s'", optionText));
                                 return;
                         }
                 }
 
-                String err = String.format("Không tìm thấy nhân viên nào khớp với '%s'", name);
+                String err = String.format("Could not find employee '%s'", name);
                 LogUtils.error(err);
                 throw new NoSuchElementException(err);
         }
 
         public List<WebElement> showDropdown(String name) {
-                // 1. Nhập tên vào trường Employee Name
+                // 1. Type employee name
                 type(employeeNameInput, name);
 
-                // 2. Chờ cho chữ "Searching...." biến mất (nếu có xuất hiện)
+                // 2. Wait for "Searching...." to disappear (if any)
                 By searchingLocator = By
                                 .xpath("//div[contains(@class,'oxd-autocomplete-option') and contains(.,'Searching')]");
                 waitForInvisibility(searchingLocator);
 
-                // 3. Đợi danh sách kết quả hiển thị
+                // 3. Wait for list results to display
                 By optionsLocator = By.xpath("//div[contains(@class,'oxd-autocomplete-option')]");
                 List<WebElement> options = getElementsList(optionsLocator);
                 return options;
-        }
-
-        public boolean isSuccessToastDisplayed() {
-                return isDisplayed(successToast);
         }
 
 }

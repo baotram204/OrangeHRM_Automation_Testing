@@ -14,10 +14,6 @@ public class BasePage {
 
     protected int timeout = 30;
 
-    /**
-     * Luôn lấy driver từ ThreadLocal → đảm bảo thread-safe.
-     * Không lưu vào instance field để tránh chia sẻ giữa các thread.
-     */
     protected WebDriver getDriver() {
         return DriverFactory.getDriver();
     }

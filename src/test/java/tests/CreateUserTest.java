@@ -207,7 +207,7 @@ public class CreateUserTest extends BaseTest {
                 // -- Steps --
                 String username = "TestUser_" + System.currentTimeMillis();
                 String userRole = AppConstants.ROLE_ADMIN;
-                String employeeName = "John";
+                String employeeName = AppConstants.EMPLOYEE_NAME_VALID;
                 String status = AppConstants.STATUS_ENABLED;
                 String password = AppConstants.PASSWORD_VALID;
                 String confirmPassword = AppConstants.PASSWORD_VALID;
@@ -266,7 +266,7 @@ public class CreateUserTest extends BaseTest {
          * UM_CREATE_010, UM_CREATE_011, UM_CREATE_012
          */
         @Test(groups = { "regression",
-                        "negative" }, description = "Verify for valid username", dataProvider = "smartDataProvider")
+                        "negative", "positive" }, description = "Verify for valid username", dataProvider = "smartDataProvider")
         public void verifyValidUsername(String testCaseId, String username, String expectedResult) {
                 ExtentTestUtils.setTest(
                                 extent.createTest("[" + testCaseId + "] - Verify valid username - " + username + " - "
@@ -334,7 +334,7 @@ public class CreateUserTest extends BaseTest {
                 // --Steps--
                 String username = "TestUser_" + System.currentTimeMillis();
                 String userRole = AppConstants.ROLE_ADMIN;
-                String employeeName = "John";
+                String employeeName = AppConstants.EMPLOYEE_NAME_VALID;
                 String status = AppConstants.STATUS_ENABLED;
                 String password = AppConstants.PASSWORD_VALID;
                 String confirmPassword = AppConstants.PASSWORD_INVALID;

@@ -34,6 +34,9 @@ public class AppConstants {
     public static final String EMPLOYEE_NAME_VALID = "John";
     public static final String EMPLOYEE_NAME_INVALID = "Invalid";
 
+    public static final String USERNAME_ADMIN = "Admin";
+    public static final String USERNAME_INVALID = "Invalid";
+
     // ========================= MISC =========================
     public static final String EXCEL_FILE_PATH = System.getProperty("user.dir") + "/testdata/TestData.xlsx";
 
