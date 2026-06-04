@@ -18,6 +18,13 @@ public class DriverFactory {
             if (browser.equalsIgnoreCase("chrome")) {
                 WebDriverManager.chromedriver().setup();
                 org.openqa.selenium.chrome.ChromeOptions options = new org.openqa.selenium.chrome.ChromeOptions();
+                
+                // Các cấu hình quan trọng để Chrome không bị crash trên Jenkins/CI:
+                options.addArguments("--no-sandbox"); // Bỏ qua cơ chế bảo mật sandbox để tránh lỗi trên server
+                options.addArguments("--disable-dev-shm-usage"); // Sử dụng /tmp thay vì /dev/shm để tránh lỗi tràn RAM
+                options.addArguments("--remote-allow-origins=*");
+                // options.addArguments("--headless=new"); // Bỏ comment dòng này nếu Jenkins của bạn không có giao diện màn hình (Headless mode)
+
                 driver.set(new ChromeDriver(options));
             } else {
                 throw new IllegalStateException("Browser do not support");

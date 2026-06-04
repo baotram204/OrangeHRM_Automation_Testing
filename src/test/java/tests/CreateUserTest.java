@@ -57,7 +57,7 @@ public class CreateUserTest extends BaseTest {
 
         // Helper
         // ============================================================================
-        @DataProvider(name = "smartDataProvider", parallel = true)
+        @DataProvider(name = "smartDataProvider")
         public Object[][] getExcelData(Method method) {
                 try {
                         String filePath = AppConstants.EXCEL_FILE_PATH;
