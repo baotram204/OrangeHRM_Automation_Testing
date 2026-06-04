@@ -79,9 +79,6 @@ public class AdminUserPage extends BasePage {
                 LogUtils.info("Type username: " + username);
                 type(usernameInput, username);
 
-                // TAB
-                getElementsList(usernameInput).get(0).sendKeys(org.openqa.selenium.Keys.TAB);
-
                 // Sleep 1000ms -- FIX TẠM THỜI
                 try {
                         Thread.sleep(1000);
@@ -118,33 +115,63 @@ public class AdminUserPage extends BasePage {
         // Verify ===================================================
 
         /**
-         * Get all data in a column
+         * Get data from one or multiple columns.
+         * For multiple columns, values in the same row are concatenated by a space.
          * 
-         * @param field column name
-         * @return list data in column
+         * @param fields column names
+         * @return list of concatenated data for each row
          */
-        public List<String> getDataFollowField(String field) {
+        public List<String> getDataFollowField(String... fields) {
+                if (fields == null || fields.length == 0) {
+                        throw new IllegalArgumentException("Please provide at least one field");
+                }
 
                 if (isInfoToastDisplayed()) {
+                        LogUtils.info("No results found");
                         return Collections.emptyList();
                 }
 
                 List<WebElement> headers = getElementsList(columnHeaders);
-                int columnHeaderIndex = 0;
-                for (int i = 0; i < headers.size(); i++) {
-                        if (headers.get(i).getText().trim().equals(field)) {
-                                columnHeaderIndex = i + 1;
-                                break;
+                List<List<String>> columnsData = new java.util.ArrayList<>();
+
+                for (String field : fields) {
+                        int columnHeaderIndex = 0;
+                        for (int i = 0; i < headers.size(); i++) {
+                                if (headers.get(i).getText().trim().equals(field)) {
+                                        columnHeaderIndex = i + 1;
+                                        break;
+                                }
+                        }
+
+                        if (columnHeaderIndex > 0) {
+                                List<WebElement> values = getElementsList(By
+                                                .xpath("//div[@class='oxd-table-card']//div[@role='cell']["
+                                                                + columnHeaderIndex + "]"));
+                                List<String> data = values.stream().map(WebElement::getText).toList();
+                                columnsData.add(data);
+                        } else {
+                                columnsData.add(Collections.emptyList());
+                                LogUtils.error("Column not found: " + field);
                         }
                 }
 
-                List<WebElement> values = getElementsList(By
-                                .xpath("//div[@class='oxd-table-card']//div[@role='cell'][" + columnHeaderIndex + "]"));
-                List<String> data = values.stream().map(WebElement::getText).toList();
-                LogUtils.info("Column " + field + " data: " + data);
+                List<String> rowDataList = new java.util.ArrayList<>();
+                if (columnsData.isEmpty() || columnsData.get(0).isEmpty()) {
+                        return rowDataList;
+                }
 
-                return data;
+                int rowCount = columnsData.get(0).size();
+                for (int i = 0; i < rowCount; i++) {
+                        StringBuilder rowBuilder = new StringBuilder();
+                        for (List<String> colData : columnsData) {
+                                String val = (i < colData.size()) ? colData.get(i) : "";
+                                rowBuilder.append(val).append(" ");
+                        }
+                        rowDataList.add(rowBuilder.toString().trim());
+                }
 
+                LogUtils.info("Data for fields " + java.util.Arrays.toString(fields) + ": " + rowDataList);
+                return rowDataList;
         }
 
         /**
@@ -209,7 +236,7 @@ public class AdminUserPage extends BasePage {
          * @return true if success toast display
          */
         public boolean isSuccessToastDisplayed() {
-                return isDisplayed(successToast);
+                return isDisplayed(successToast, 3);
         }
 
         /**
@@ -218,7 +245,7 @@ public class AdminUserPage extends BasePage {
          * @return true if info toast display
          */
         public boolean isInfoToastDisplayed() {
-                return isDisplayed(infoToast);
+                return isDisplayed(infoToast, 3);
         }
 
         /**
@@ -227,7 +254,7 @@ public class AdminUserPage extends BasePage {
          * @return true if user table display
          */
         public boolean isUserTableDisplayed() {
-                return isDisplayed(userTable);
+                return isDisplayed(userTable, 3);
         }
 
         /**
