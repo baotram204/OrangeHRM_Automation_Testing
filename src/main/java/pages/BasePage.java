@@ -1,11 +1,9 @@
 package pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import java.util.List;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import driver.DriverFactory;
 import utils.WaitUtils;
@@ -51,4 +49,20 @@ public class BasePage {
     public void waitForInvisibility(By locator) {
         WaitUtils.waitForInvisibility(getDriver(), locator, timeout);
     }
+
+    public LoginPage logout() {
+        utils.LogUtils.info("Logout from system");
+        By userDropdown = By.className("oxd-userdropdown-tab");
+        By logoutLink = By.xpath("//a[normalize-space()='Logout']");
+
+        click(userDropdown);
+        click(logoutLink);
+
+        return new LoginPage();
+    }
+
+    public String getCurrentPageUrl() {
+        return getDriver().getCurrentUrl();
+    }
+
 }

@@ -1,13 +1,7 @@
 package pages;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-
 import utils.LogUtils;
-import utils.WaitUtils;
 
 public class AddUserPage extends AdminUserPage {
 

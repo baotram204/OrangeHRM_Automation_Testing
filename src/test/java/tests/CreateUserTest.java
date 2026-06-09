@@ -3,7 +3,6 @@ package tests;
 import base.BaseTest;
 import config.ConfigReader;
 import constants.AppConstants;
-import driver.DriverFactory;
 import org.testng.Assert;
 import org.testng.annotations.*;
 

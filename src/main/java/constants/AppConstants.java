@@ -10,6 +10,7 @@ public class AppConstants {
 
     // ========================= MESSAGES =========================
     public static final String MSG_REQUIRED = "Required";
+    public static final String MSG_INVALID = "Invalid";
     public static final String MSG_ALREADY_EXISTS = "Already exists";
     public static final String MSG_SUCCESS_SAVED = "Successfully Saved";
 
@@ -31,11 +32,13 @@ public class AppConstants {
     public static final String STATUS_DISABLED = "Disabled";
     public static final String PASSWORD_VALID = "Valid@123";
     public static final String PASSWORD_INVALID = "Wrong@123";
+    public static final String PASSWORD_WEAK = "12345677";
     public static final String EMPLOYEE_NAME_VALID = "John";
     public static final String EMPLOYEE_NAME_INVALID = "Invalid";
 
     // ========================= USERNAME & ERROR MESSAGE =========================
     public static final String USERNAME_ADMIN = "Admin";
+    public static final String USERNAME_USER = "User_";
     public static final String USERNAME_INVALID = "Invalid";
     public static final String USERNAME_MIN_LENGTH = "Adm";
     public static final String ERROR_MESSAGE_USERNAME_MIN_LENGTH = "Should be at least 5 characters";

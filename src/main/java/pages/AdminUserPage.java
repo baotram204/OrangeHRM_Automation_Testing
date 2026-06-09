@@ -3,14 +3,11 @@ package pages;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Random;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 
 import utils.LogUtils;
-import utils.WaitUtils;
 
 public class AdminUserPage extends BasePage {
 
@@ -39,7 +36,7 @@ public class AdminUserPage extends BasePage {
 
         // toast
         private static By successToast = By
-                        .xpath("//p[text()='Successfully Saved' or contains(text(), 'Successfully Saved')]");
+                        .xpath("//p[normalize-space()='Success']");
         private static By infoToast = By
                         .xpath("//p[text()='No Records Found' or contains(text(), 'No Records Found')]");
 
@@ -47,6 +44,8 @@ public class AdminUserPage extends BasePage {
         private static By userTable = By.className("oxd-table");
         private static By rowsTable = By.xpath("//div[@class='oxd-table-card']");
         private static By columnHeaders = By.xpath("//div[@role='columnheader']");
+
+        // button for every user in table
 
         // text
         private static By textTotalRecord = By.xpath(
@@ -112,6 +111,33 @@ public class AdminUserPage extends BasePage {
                 type(employeeNameInput, name);
         }
 
+        public UpdateUserPage clickEditButton(String username) {
+                LogUtils.info("Click Edit button for user: " + username);
+                int usernameColumn = getColumnIndex("Username");
+                String xpath = String.format(
+                                "//div[@role='row'][div[@role='cell'][%d]//div[normalize-space()='%s']] //i[contains(@class,'bi-pencil-fill')] /parent::button",
+                                usernameColumn,
+                                username);
+                By editButton = By.xpath(xpath);
+                click(editButton);
+
+                return new UpdateUserPage();
+        }
+
+        // public UpdateUserPage clickDeleteButton(String username) {
+        // LogUtils.info("Click Delete button for user: " + username);
+        // int usernameColumn = getColumnIndex("Username");
+        // String xpath = String.format(
+        // "//div[@role='row'][div[@role='cell'][%d]//div[normalize-space()='%s']]
+        // //i[contains(@class,'bi-trash')] /parent::button",
+        // usernameColumn,
+        // username);
+        // By deleteButton = By.xpath(xpath);
+        // click(deleteButton);
+
+        // return new DeleteUserPage();
+        // }
+
         // Verify ===================================================
 
         /**
@@ -131,18 +157,10 @@ public class AdminUserPage extends BasePage {
                         return Collections.emptyList();
                 }
 
-                List<WebElement> headers = getElementsList(columnHeaders);
                 List<List<String>> columnsData = new java.util.ArrayList<>();
 
                 for (String field : fields) {
-                        int columnHeaderIndex = 0;
-                        for (int i = 0; i < headers.size(); i++) {
-                                if (headers.get(i).getText().trim().equals(field)) {
-                                        columnHeaderIndex = i + 1;
-                                        break;
-                                }
-                        }
-
+                        int columnHeaderIndex = getColumnIndex(field);
                         if (columnHeaderIndex > 0) {
                                 List<WebElement> values = getElementsList(By
                                                 .xpath("//div[@class='oxd-table-card']//div[@role='cell']["
@@ -236,7 +254,7 @@ public class AdminUserPage extends BasePage {
          * @return true if success toast display
          */
         public boolean isSuccessToastDisplayed() {
-                return isDisplayed(successToast, 3);
+                return isDisplayed(successToast, 10);
         }
 
         /**
@@ -245,7 +263,7 @@ public class AdminUserPage extends BasePage {
          * @return true if info toast display
          */
         public boolean isInfoToastDisplayed() {
-                return isDisplayed(infoToast, 3);
+                return isDisplayed(infoToast, 10);
         }
 
         /**
@@ -254,7 +272,7 @@ public class AdminUserPage extends BasePage {
          * @return true if user table display
          */
         public boolean isUserTableDisplayed() {
-                return isDisplayed(userTable, 3);
+                return isDisplayed(userTable, 10);
         }
 
         /**
@@ -277,7 +295,7 @@ public class AdminUserPage extends BasePage {
                 By errorField = By.xpath(
                                 "//label[normalize-space()='" + field
                                                 + "'] /ancestor::div[contains(@class,'oxd-input-group')]//span");
-                return isDisplayed(errorField, 3);
+                return isDisplayed(errorField, 10);
         }
 
         /**
@@ -298,6 +316,22 @@ public class AdminUserPage extends BasePage {
         }
 
         // HELPER ==================================================
+
+        /**
+         * Get column index from column name
+         * 
+         * @param columnName Column name
+         * @return Column index
+         */
+        public int getColumnIndex(String columnName) {
+                List<WebElement> headers = getElementsList(columnHeaders);
+                for (int i = 0; i < headers.size(); i++) {
+                        if (headers.get(i).getText().trim().equals(columnName)) {
+                                return i + 1;
+                        }
+                }
+                return -1;
+        }
 
         /**
          * 
