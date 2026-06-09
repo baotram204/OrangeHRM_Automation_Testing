@@ -39,6 +39,7 @@ public class AdminUserPage extends BasePage {
                         .xpath("//p[normalize-space()='Success']");
         private static By infoToast = By
                         .xpath("//p[text()='No Records Found' or contains(text(), 'No Records Found')]");
+        private static By errorMessage = By.xpath("//p[normalize-space()='Error']");
 
         // user table
         private static By userTable = By.className("oxd-table");
@@ -50,6 +51,14 @@ public class AdminUserPage extends BasePage {
         // text
         private static By textTotalRecord = By.xpath(
                         "//div[@class='orangehrm-horizontal-padding orangehrm-vertical-padding']");
+
+        // popup
+        protected static By popupDelete = By
+                        .xpath("//div[@role='document']");
+        protected static By confirmDeleteButton = By
+                        .xpath("//button[normalize-space()='Yes, Delete']");
+        protected static By cancelDeleteButton = By
+                        .xpath("//button[normalize-space()='No, Cancel']");
 
         // Button Action =========================================================
 
@@ -124,19 +133,94 @@ public class AdminUserPage extends BasePage {
                 return new UpdateUserPage();
         }
 
-        // public UpdateUserPage clickDeleteButton(String username) {
-        // LogUtils.info("Click Delete button for user: " + username);
-        // int usernameColumn = getColumnIndex("Username");
-        // String xpath = String.format(
-        // "//div[@role='row'][div[@role='cell'][%d]//div[normalize-space()='%s']]
-        // //i[contains(@class,'bi-trash')] /parent::button",
-        // usernameColumn,
-        // username);
-        // By deleteButton = By.xpath(xpath);
-        // click(deleteButton);
+        /**
+         * Delete user
+         * 
+         * @param username Username
+         * @return DeleteUserPage
+         */
 
-        // return new DeleteUserPage();
-        // }
+        public void clickDeleteButton(String username) {
+                LogUtils.info("Click Delete button for user: " + username);
+                int usernameColumn = getColumnIndex("Username");
+                String xpath = String.format(
+                                "//div[@role='row'][div[@role='cell'][%d]//div[normalize-space()='%s']] //i[contains(@class,'bi-trash')] /parent::button",
+                                usernameColumn,
+                                username);
+                By deleteButton = By.xpath(xpath);
+                click(deleteButton);
+        }
+
+        public void clickYesConfirmDelete() {
+                if (isPopupDeleteDisplayed()) {
+                        LogUtils.info("Clicked Confirm Delete button");
+                        click(confirmDeleteButton);
+                }
+        }
+
+        public void clickNoConfirmDelete() {
+                if (isPopupDeleteDisplayed()) {
+                        LogUtils.info("Clicked No Confirm Delete button");
+                        click(cancelDeleteButton);
+                }
+        }
+
+        public void closePopupDeleteDialog() {
+                if (isPopupDeleteDisplayed()) {
+                        LogUtils.info("Close popup delete dialog");
+                        By closeBtn = By.xpath(
+                                        "//div[@role='document']//button[contains(@class,'oxd-dialog-close-button')]");
+                        click(closeBtn);
+                }
+        }
+
+        public void clickCheckboxForUser(String username) {
+                LogUtils.info("Click checkbox for user: " + username);
+                int usernameColumn = getColumnIndex("Username");
+                String xpath = String.format(
+                                "//div[@role='row'][div[@role='cell'][%d]//div[normalize-space()='%s']] //div[contains(@class,'oxd-checkbox-wrapper')]//span",
+                                usernameColumn,
+                                username);
+                By checkbox = By.xpath(xpath);
+                click(checkbox);
+        }
+
+        public void clickSelectAllCheckbox() {
+                LogUtils.info("Click Select All checkbox");
+                By selectAll = By.xpath(
+                                "//div[@role='columnheader']//div[contains(@class,'oxd-checkbox-wrapper')]//span");
+                click(selectAll);
+        }
+
+        public void clickDeleteSelectedButton() {
+                LogUtils.info("Click Delete Selected button");
+                By deleteSelected = By.xpath("//button[normalize-space()='Delete Selected']");
+                click(deleteSelected);
+        }
+
+        public void waitForToastToDisappear() {
+                By anyToast = By.xpath("//div[contains(@class, 'oxd-toast')]");
+                waitForInvisibility(anyToast);
+        }
+
+        public boolean isUserInList(String username) {
+                waitForToastToDisappear();
+                clickReset();
+                typeUsername(username);
+                clickSearch();
+                try {
+                        Thread.sleep(2000); // wait for search results
+                } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                }
+
+                if (getDisplayedRecordCount() == 0) {
+                        return false;
+                }
+
+                List<String> usernames = getDataFollowField("Username");
+                return usernames.contains(username);
+        }
 
         // Verify ===================================================
 
@@ -152,7 +236,7 @@ public class AdminUserPage extends BasePage {
                         throw new IllegalArgumentException("Please provide at least one field");
                 }
 
-                if (isInfoToastDisplayed()) {
+                if (getDisplayedRecordCount() == 0) {
                         LogUtils.info("No results found");
                         return Collections.emptyList();
                 }
@@ -248,6 +332,17 @@ public class AdminUserPage extends BasePage {
                 return true;
         }
 
+        // Check Display ===================================================
+
+        /**
+         * Check popup delete display
+         * 
+         * @return true if popup delete display
+         */
+        public boolean isPopupDeleteDisplayed() {
+                return isDisplayed(popupDelete, 10);
+        }
+
         /**
          * Check success toast display
          * 
@@ -264,6 +359,15 @@ public class AdminUserPage extends BasePage {
          */
         public boolean isInfoToastDisplayed() {
                 return isDisplayed(infoToast, 10);
+        }
+
+        /**
+         * Check error message display
+         * 
+         * @return true if error message display
+         */
+        public boolean isErrorMessageDisplayed() {
+                return isDisplayed(errorMessage, 10);
         }
 
         /**

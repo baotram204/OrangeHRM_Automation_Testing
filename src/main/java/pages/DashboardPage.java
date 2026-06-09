@@ -13,4 +13,8 @@ public class DashboardPage extends BasePage {
         click(adminMenu);
         return new AdminUserPage();
     }
+
+    public boolean isAdminMenuDisplayed() {
+        return isDisplayed(adminMenu, 3);
+    }
 }

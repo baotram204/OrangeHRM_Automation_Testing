@@ -9,7 +9,7 @@
       Negative     : mvn test -Dgroups=negative
       Toàn bộ      : mvn test 
 
-      chỉ class    : mvn test -Dtest=UpdateUserTest
+      chỉ class    : mvn test -Dtest=DeleteUserTest
 
       parallel="methods"
       thread-count="2"
@@ -34,6 +34,12 @@
     <test name="Update User Tests">
         <classes>
             <class name="tests.UpdateUserTest"/>
+        </classes>
+    </test>
+
+    <test name="Delete User Tests">
+        <classes>
+            <class name="tests.DeleteUserTest"/>
         </classes>
     </test>
 
